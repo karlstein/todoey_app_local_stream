@@ -77,10 +77,12 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
           Icons.add,
         ),
       ),
-      body: SingleChildScrollView(
-        child: TodoeyStream(
-          controller: _tabController,
-          lastDay: lastDay,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: TodoeyStream(
+            controller: _tabController,
+            lastDay: lastDay,
+          ),
         ),
       ),
     );

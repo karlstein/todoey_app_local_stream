@@ -47,13 +47,7 @@ class _TabSectionState extends State<TabSection> {
 
   @override
   void initState() {
-    widget.controller.addListener(() {
-      print(createMonthlyTodoeyCard1());
-      print(widget.data
-          .where((e) => e.scheduledTime == indexDate(widget.controller.index))
-          .toList());
-      print(widget.controller.index);
-    });
+    widget.controller.addListener(() {});
     super.initState();
   }
 

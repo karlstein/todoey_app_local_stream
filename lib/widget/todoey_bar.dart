@@ -12,6 +12,7 @@ class TodoeyBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       padding: EdgeInsets.only(top: 60, left: 30, right: 30, bottom: 30),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,7 +38,7 @@ class TodoeyBar extends StatelessWidget {
             ),
           ),
           Text(
-            '${data.length} Tasks',
+            '${data.where((e) => e.scheduledTime.month == DateTime.now().month).toList().length} Tasks',
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
