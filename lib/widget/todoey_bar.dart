@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:todoey_flutter_local2/model/todoey_model.dart';
+import 'package:provider/provider.dart';
+import 'package:todoey_flutter_local2/provider/data_bloc.dart';
 
 class TodoeyBar extends StatelessWidget {
-  final List<Todoey> data;
-
-  const TodoeyBar({
-    Key? key,
-    required this.data,
-  }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -38,7 +32,7 @@ class TodoeyBar extends StatelessWidget {
             ),
           ),
           Text(
-            '${data.where((e) => e.scheduledTime.month == DateTime.now().month).toList().length} Tasks',
+            '${Provider.of<DataProvider>(context).todos.where((e) => e.scheduledTime.month == DateTime.now().month).toList().length} Tasks',
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,

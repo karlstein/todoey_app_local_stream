@@ -2,8 +2,7 @@ import 'package:date_utils/date_utils.dart' as Utils;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todoey_flutter_local2/db/todoey_database.dart';
-import 'package:todoey_flutter_local2/model/todoey_model.dart';
-import 'package:todoey_flutter_local2/page/add_edit_task_page.dart';
+import 'package:todoey_flutter_local2/provider/data_bloc.dart';
 import 'package:todoey_flutter_local2/provider/todoey_bloc.dart';
 import 'package:todoey_flutter_local2/widget/todoey_stream.dart';
 
@@ -15,31 +14,33 @@ class TaskPage extends StatefulWidget {
 }
 
 class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
-  late TabController _tabController;
-  List<Widget> listviewList = [];
-  List<Todoey> todos = [];
-  bool isLoading = false;
-  DateTime lastDayDT = Utils.DateUtils.lastDayOfMonth(DateTime.now());
-  late int lastDay = lastDayDT.day;
-
-  TodoeyBlocProvider? todoeyBloc;
+  late TabController tabController;
+  late int lastDay = Utils.DateUtils.lastDayOfMonth(DateTime.now()).day;
 
   @override
   void initState() {
     super.initState();
 
-    _tabController = TabController(
+    tabController = TabController(
       length: lastDay,
       vsync: this,
       initialIndex: DateTime.now().day - 1,
     );
 
-    // refreshTodos(_tabController.index);
+    tabController.addListener(() {});
+
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+      Provider.of<DataProvider>(context, listen: false).tabController =
+          tabController;
+
+      Provider.of<DataProvider>(context, listen: false).lastDay = lastDay;
+    });
   }
 
   @override
   void didChangeDependencies() {
-    todoeyBloc = context.watch<TodoeyBlocProvider>();
+    Provider.of<DataProvider>(context).todoeyBloc =
+        context.watch<TodoeyBlocProvider>();
     super.didChangeDependencies();
   }
 
@@ -56,21 +57,8 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
       backgroundColor: Color(0xFF4fc3f7),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showModalBottomSheet(
-            isScrollControlled: true,
-            context: context,
-            builder: (context) => SingleChildScrollView(
-              child: Container(
-                padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom),
-                child: AddEditTaskPage(
-                  todoeyBloc: todoeyBloc!,
-                  currentIndex: _tabController.index,
-                  isEdit: false,
-                ),
-              ),
-            ),
-          );
+          Provider.of<DataProvider>(context, listen: false)
+              .showModal(context, false);
         },
         backgroundColor: Color(0xFF4fc3f7),
         child: Icon(
@@ -79,10 +67,7 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: TodoeyStream(
-            controller: _tabController,
-            lastDay: lastDay,
-          ),
+          child: TodoeyStream(),
         ),
       ),
     );

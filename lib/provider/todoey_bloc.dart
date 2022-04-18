@@ -6,9 +6,7 @@ import 'package:todoey_flutter_local2/model/todoey_model.dart';
 
 class TodoeyBlocProvider extends ChangeNotifier {
   final _todoeyController = StreamController<List<Todoey>>.broadcast();
-
   StreamSink<List<Todoey>> get _inTodoeySink => _todoeyController.sink;
-
   Stream<List<Todoey>> get getTodoeyStream => _todoeyController.stream;
 
   final _insertController = StreamController<Todoey>.broadcast();

@@ -1,116 +1,103 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:todoey_flutter_local2/consts.dart';
 import 'package:todoey_flutter_local2/model/todoey_model.dart';
-import 'package:todoey_flutter_local2/provider/todoey_bloc.dart';
+import 'package:todoey_flutter_local2/provider/data_bloc.dart';
 import 'package:todoey_flutter_local2/widget/rounded_button.dart';
 
-class AddEditTaskPage extends StatefulWidget {
+class AddEditTaskPage extends StatelessWidget {
   AddEditTaskPage({
-    required this.todoeyBloc,
-    required this.currentIndex,
-    required this.isEdit,
     this.data,
     this.cardIndex,
   });
-  final TodoeyBlocProvider todoeyBloc;
-  late int currentIndex;
-  final bool isEdit;
   late List<Todoey>? data;
   late int? cardIndex;
-
-  @override
-  State<AddEditTaskPage> createState() => _AddEditTaskPageState();
-}
-
-class _AddEditTaskPageState extends State<AddEditTaskPage> {
-  String title = '';
-  String description = '';
-  late Todoey todoey;
-
   @override
   Widget build(BuildContext context) {
+    var p = Provider.of<DataProvider>(context);
     return Container(
       child: Container(
         padding: EdgeInsets.all(10),
-        child: Column(
-          children: [
-            Text(
-              widget.isEdit ? 'Edit task' : 'Add new task',
-              style: TextStyle(fontSize: 20),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            TextFormField(
-              autofocus: true,
-              initialValue:
-                  widget.isEdit ? widget.data![widget.cardIndex!].title : '',
-              textAlign: TextAlign.left,
-              decoration: kInputDecoration.copyWith(hintText: 'Title'),
-              onChanged: (title) {
-                setState(() => this.title = title);
-              },
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            TextFormField(
-              initialValue: widget.isEdit
-                  ? widget.data![widget.cardIndex!].description
-                  : '',
-              textAlign: TextAlign.left,
-              maxLines: 10,
-              decoration: kInputDecoration.copyWith(hintText: 'Description'),
-              onChanged: (description) {
-                setState(() => this.description = description);
-              },
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            RoundedButton(
-              onPressed: () {
-                addOrUpdateTask(this.title, this.description);
-                Navigator.pop(context);
-              },
-              tittle: widget.isEdit ? 'Save' : 'Add',
-            )
-          ],
+        child: Form(
+          key: p.addEditFormKey,
+          child: Column(
+            children: [
+              Text(
+                p.isEdit! ? 'Edit task' : 'Add new task',
+                style: TextStyle(fontSize: 20),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              TextFormField(
+                autofocus: true,
+                initialValue: p.isEdit! ? data![cardIndex!].title : '',
+                textAlign: TextAlign.left,
+                decoration: kInputDecoration.copyWith(hintText: 'Title'),
+                validator: (title) => p.titleFieldValidator(title),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              TextFormField(
+                initialValue: p.isEdit! ? data![cardIndex!].description : '',
+                textAlign: TextAlign.left,
+                maxLines: 10,
+                decoration: kInputDecoration.copyWith(hintText: 'Description'),
+                validator: (description) =>
+                    p.descriptionFieldValidator(description),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              RoundedButton(
+                onPressed: () {
+                  addOrUpdateTask(context, p.title, p.description);
+                  Navigator.pop(context);
+                },
+                tittle: p.isEdit! ? 'Save' : 'Add',
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 
-  void addOrUpdateTask(title, description) {
-    if (widget.isEdit) {
-      updateTodoey(widget.cardIndex, false, title, description);
-    } else {
-      addTodoey(title, description);
+  void addOrUpdateTask(context, title, description) {
+    var p = Provider.of<DataProvider>(context, listen: false);
+    if (p.addEditFormKey.currentState!.validate()) {
+      if (p.isEdit!) {
+        updateTodoey(context);
+      } else {
+        addTodoey(context);
+      }
     }
   }
 
-  void addTodoey(String title, String description) async {
-    widget.todoeyBloc.insertTodoey.add(Todoey(
-      title: title,
-      description: description,
+  void addTodoey(BuildContext context) async {
+    var p = Provider.of<DataProvider>(context, listen: false);
+    p.todoeyBloc!.insertTodoey.add(Todoey(
+      title: p.title,
+      description: p.description,
       progress: false,
       createdTime: DateTime.now(),
       scheduledTime: DateTime(
-          DateTime.now().year, DateTime.now().month, widget.currentIndex + 1),
+          DateTime.now().year, DateTime.now().month, p.tabController.index + 1),
     ));
+    print("${p.title} && ${p.description}");
   }
 
-  void updateTodoey(cardIndex, progress, title, description) {
-    widget.todoeyBloc.inUpdateTodoey.add(Todoey(
-        id: widget.data![cardIndex].id!,
-        title: title == '' ? widget.data![cardIndex].title : title,
-        description: description == ''
-            ? widget.data![cardIndex].description
-            : description,
-        progress: progress,
-        createdTime: widget.data![cardIndex].createdTime,
-        scheduledTime: widget.data![cardIndex].scheduledTime));
+  void updateTodoey(BuildContext context) {
+    var p = Provider.of<DataProvider>(context, listen: false);
+    p.todoeyBloc!.inUpdateTodoey.add(Todoey(
+        id: data![cardIndex!].id!,
+        title: p.title,
+        description: p.description,
+        progress: false,
+        createdTime: data![cardIndex!].createdTime,
+        scheduledTime: data![cardIndex!].scheduledTime));
   }
 }

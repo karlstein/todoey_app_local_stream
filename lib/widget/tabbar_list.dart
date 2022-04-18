@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:todoey_flutter_local2/page/task_page.dart';
+import 'package:todoey_flutter_local2/provider/data_bloc.dart';
 
 TaskPage taskPage = TaskPage();
 
 class TabBarList extends StatelessWidget {
-  const TabBarList({Key? key, required this.controller, required this.lastDay})
-      : super(key: key);
-  final TabController controller;
-  final int lastDay;
+  const TabBarList({Key? key}) : super(key: key);
 
-  TabBar tabBarDate() {
+  TabBar tabBarDate(lastDay, controller) {
     List<Tab> dateList = [];
     for (var i = 0; i < lastDay; i++) {
       dateList.add(Tab(text: (i + 1).toString()));
@@ -33,6 +32,7 @@ class TabBarList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return tabBarDate();
+    var p = Provider.of<DataProvider>(context);
+    return tabBarDate(p.lastDay, p.tabController);
   }
 }
