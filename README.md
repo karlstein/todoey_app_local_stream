@@ -5,6 +5,7 @@ Depedency:
 
 1.	Sqflite
 2.	Bloc_Provider
+3.	Provider State Management
 
 Feature:
 1.	CRUD todo
